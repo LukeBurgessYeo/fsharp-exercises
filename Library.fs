@@ -1,13 +1,19 @@
 module Library
 
 open System
-open Newtonsoft.Json
 open System.IO
 open System.Text.RegularExpressions
 open System.Net
 
-let getJsonNetJson value =
-    sprintf "I used to be %s but now I'm %s thanks to JSON.NET!" value (JsonConvert.SerializeObject(value))
+// Utils
+
+let private reverse (word:string) =
+    new string(word
+    |> Seq.toList
+    |> List.rev
+    |> List.toArray)
+
+let private convertToString = List.map (sprintf "%i") >> String.concat ""
 
 // -------------------------------------------------
 
@@ -24,7 +30,7 @@ let Collatz x =
 
 let steps, numbers = Collatz 75128138247I
 
-//printfn "%A" (Collatz 75128138247I)
+printfn "%A" (Collatz 75128138247I)
 
 // -------------------------------------------------
 
@@ -39,18 +45,12 @@ let FizzBuzz upper =
 
 // pass 100 into FizzBuzz then iterate through FizzBuzz
 // list Reversing and then printing each element
-// 1000 |> FizzBuzz |> Seq.iter (Reverse >> printfn "%s")
+1000 |> FizzBuzz |> Seq.iter (reverse >> printfn "%s")
 
 // -------------------------------------------------
 
-let private Reverse (word:string) =
-    new string(word
-    |> Seq.toList
-    |> List.rev
-    |> List.toArray)
-
 let IsPalindrome word =
-    word = Reverse word
+    word = reverse word
 
 // -------------------------------------------------
 
@@ -119,9 +119,7 @@ let decryptAnswers = ["iamtheprettiestunicorn";
 
 // -------------------------------------------------
 
-let private convertToString = List.map (sprintf "%i") >> String.concat ""
-
-let faster_paperfold steps =
+let fasterPaperfold steps =
     let rec result arr acc =
         if acc = 0 then
             arr
@@ -140,7 +138,7 @@ let private iterator (list : int list) =
         | _ -> acc
     loop 0 list [1]
 
-let slower_paperfold steps =
+let slowerPaperfold steps =
     let rec result arr acc =
         match acc with
         | 0 -> arr
@@ -269,11 +267,11 @@ type Thing =
         TODO: int }
 
 type Other(name: string, jobId: int) =
-    let Secret = name + (string jobId)
+    let secret = name + (string jobId)
     member __.Name = name
     member __.JobId = jobId
     member __.SayHiTo someName =
-        "Hello " + someName + " my name is " + Secret
+        "Hello " + someName + " my name is " + secret
 
 let hello =
     { Time = "1";
@@ -305,8 +303,8 @@ type Flight(data:string list) =
     member __.PositionSource = int data.[16]
 
 let deserialiseFlightData data =
-    (JsonConvert.DeserializeObject<FlightData> data).States
-    |> List.map(fun x -> new Flight(x))
+    (Newtonsoft.Json.JsonConvert.DeserializeObject<FlightData> data).States
+    |> List.map(fun x -> Flight(x))
 
 let fetchUrl url =
     let stream = WebRequest.Create(Uri(url)).GetResponse().GetResponseStream()
@@ -326,14 +324,14 @@ let radians angle =
     Math.PI * angle / 180.0
 
 let distance (lat1:float, lon1:float) (lat2:float, lon2:float) =
-    let R = 6371e3
+    let r = 6371e3
     let thi1 = radians lat1
     let thi2 = radians lat2
     let dThi = radians (lat2 - lat1)
     let dLam = radians (lon2 - lon1)
-    let a = Math.Sin (dThi/2.0) * Math.Sin (dThi/2.0) + Math.Cos (thi1) * Math.Cos (thi2) * Math.Sin (dLam/2.0) * Math.Sin (dLam/2.0);
+    let a = Math.Sin (dThi/2.0) * Math.Sin (dThi/2.0) + Math.Cos (thi1) * Math.Cos (thi2) * Math.Sin (dLam/2.0) * Math.Sin (dLam/2.0)
     let c = 2.0 * Math.Atan2 (Math.Sqrt a, Math.Sqrt (1.0-a))
-    R * c
+    r * c
 
 let eifelTower = (48.8584, 2.2945)
 
